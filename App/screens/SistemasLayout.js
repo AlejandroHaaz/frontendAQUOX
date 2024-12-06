@@ -128,7 +128,7 @@ function SistemasLayout() {
       </View>
 
       {/* Texto de bienvenida */}
-      <Text style={styles.title}>¡Bienvenido/a a la aplicación de AQUOX</Text>
+      <Text style={styles.title}>¡Bienvenido/a a la aplicación de AQUOX!</Text>
       <Text style={styles.paragraph}>
         Aquí podrás gestionar y monitorear de manera sencilla y eficiente tus sistemas, obteniendo
         información valiosa sobre el tratamiento de aguas residuales y la generación de energía
