@@ -4,11 +4,11 @@
     "slug": "aquox",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./App/assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./App/assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,18 +17,19 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./App/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.alejandro_haaz.aquox"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./App/assets/favicon.png"
     },
+    "owner": "alejandro_haaz",
     "extra": {
       "eas": {
         "projectId": "1f853446-a6b4-458d-b816-0d940892dc0d"
       }
-    },
-    "owner": "alejandro_haaz"
+    }
   }
 }
