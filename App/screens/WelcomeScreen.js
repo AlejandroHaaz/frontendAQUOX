@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { 
     Image, 
     SafeAreaView, 
@@ -9,27 +9,42 @@ import {
     ScrollView, 
     TouchableWithoutFeedback, 
     Keyboard, 
-    Platform 
+    Platform, 
+    Alert, 
+    ActivityIndicator 
 } from 'react-native';
 import AppButton from '../components/AppButton';
 import colors from '../config/colors';
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
 
-function WelcomeScreen(props) {
-    const [email, setEmail] = useState(''); // Estado para el correo
-    const [password, setPassword] = useState(''); // Estado para la contraseña
-    const [showLoginForm, setShowLoginForm] = useState(true);
+function WelcomeScreen() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const navigation = useNavigation();
+    const { login, loading } = useContext(AuthContext);
 
-    const handleLogin = () => {
-        console.log('Iniciando sesión...');
-        console.log('Correo:', email);
-        console.log('Contraseña:', password);
-        setShowLoginForm(true);
-        
-        // Navegar a la pantalla "Systems" al presionar el botón
-         navigation.navigate('Systems');
+    const handleLogin = async () => {
+        if (loading) return;
+
+        const success = await login(email, password);
+        if (success) {
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Systems' }],
+            });
+        } else {
+            Alert.alert('Error', 'Correo o contraseña incorrectos.');
+        }
     };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+        );
+    }
 
     return (
         <KeyboardAvoidingView
@@ -38,45 +53,43 @@ function WelcomeScreen(props) {
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <SafeAreaView style={styles.container}>
-                    
-                    
-
-                    {/* Formulario y contenido */}
                     <ScrollView contentContainerStyle={styles.contentContainer}>
-                        
-                        {/* Contenedor del logo */}
                         <View style={styles.logoContainer}>
                             <Image style={styles.logo} source={require('../assets/LOGOTIPO-03.png')} />
                         </View>
                     
                         <View style={styles.formContainer}>
-                            
-                            {/* Campo de correo */}
                             <TextInput
                                 style={styles.input}
                                 placeholder="Correo electrónico"
                                 keyboardType="email-address"
                                 autoCapitalize="none"
-                                value={email} // Vincula el estado al campo
-                                onChangeText={(text) => setEmail(text)} // Actualiza el estado
+                                value={email}
+                                onChangeText={setEmail}
                             />
-
-                            {/* Campo de contraseña */}
                             <TextInput
                                 style={styles.input}
                                 placeholder="Contraseña"
                                 secureTextEntry
                                 autoCapitalize="none"
-                                value={password} // Vincula el estado al campo
-                                onChangeText={(text) => setPassword(text)} // Actualiza el estado
+                                value={password}
+                                onChangeText={setPassword}
                             />
                         </View>
-                    
 
-                        {/* Botones */}
                         <View style={styles.actionButtonContainer}>
-                            <AppButton text="Iniciar sesión" color="primary" onPress={handleLogin} />
-                            <AppButton text="Crear cuenta" color="secondary" onPress={() => navigation.navigate('Register')} />
+                            <AppButton 
+                                text="Iniciar sesión" 
+                                color="primary" 
+                                onPress={handleLogin} 
+                                disabled={loading}
+                            />
+                            <AppButton 
+                                text="Crear cuenta" 
+                                color="secondary" 
+                                onPress={() => navigation.navigate('Register')} 
+                                disabled={loading}
+                            />
                         </View>
                     </ScrollView>
                 </SafeAreaView>
@@ -86,6 +99,12 @@ function WelcomeScreen(props) {
 }
 
 const styles = StyleSheet.create({
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.white,
+    },
     actionButtonContainer: {
         width: '100%',
     },
@@ -96,17 +115,17 @@ const styles = StyleSheet.create({
     logo: {
         width: 150, 
         height: 200,
-        alignSelf: 'center', // Centrado en la pantalla
+        alignSelf: 'center',
     },
     logoContainer: {
         alignItems: 'center', 
-        paddingBottom: 20
+        paddingBottom: 20,
     },
     contentContainer: {
-        flexGrow: 1, // Hace que el contenido crezca
-        justifyContent: 'center', // Centra el contenido verticalmente
+        flexGrow: 1,
+        justifyContent: 'center',
         paddingVertical: 50,
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
     },
     formContainer: {
         width: '100%',
@@ -118,8 +137,9 @@ const styles = StyleSheet.create({
         padding: 15,
         marginBottom: 15,
         fontSize: 20,
-    }
+    },
 });
 
 export default WelcomeScreen;
+
 

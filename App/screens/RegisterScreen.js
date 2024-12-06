@@ -1,10 +1,24 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TextInput, Alert, Switch, KeyboardAvoidingView, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { 
+    StyleSheet, 
+    Text, 
+    View, 
+    SafeAreaView, 
+    TextInput, 
+    Alert, 
+    Switch, 
+    KeyboardAvoidingView, 
+    ScrollView, 
+    TouchableWithoutFeedback, 
+    Keyboard, 
+    ActivityIndicator 
+} from 'react-native';
 import colors from '../config/colors';
 import AppButton from '../components/AppButton';
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext'; // Importamos el AuthContext
 
-function RegisterScreen(props) {
+function RegisterScreen() {
     const navigation = useNavigation();
 
     const [username, setUsername] = useState('');
@@ -12,19 +26,43 @@ function RegisterScreen(props) {
     const [password, setPassword] = useState('');
     const [isPrivacyChecked, setIsPrivacyChecked] = useState(false);
 
-    const handleRegister = () => {
-        if (isPrivacyChecked) {
-            navigation.navigate('Welcome');
-        } else {
+    const { register, loading } = useContext(AuthContext); // Usamos el contexto para manejar el registro y el estado de carga
+
+    const handleRegister = async () => {
+        if (!isPrivacyChecked) {
             Alert.alert('Debe aceptar la política de privacidad para continuar.');
+            return;
+        }
+
+        if (!username || !email || !password) {
+            Alert.alert('Todos los campos son obligatorios.');
+            return;
+        }
+
+        const success = await register(username, email, password);
+        if (success) {
+            Alert.alert(
+                'Registro exitoso',
+                'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.',
+                [{ text: 'OK', onPress: () => navigation.navigate('Welcome') }]
+            );
+        } else {
+            Alert.alert('Error', 'Hubo un problema al registrar. Por favor, inténtalo de nuevo.');
         }
     };
 
+    // Mostrar una pantalla de carga mientras el estado `loading` está activo
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+                <Text style={styles.loadingText}>Registrando usuario...</Text>
+            </View>
+        );
+    }
+
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            //behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
+        <KeyboardAvoidingView style={styles.container}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <SafeAreaView>
@@ -44,7 +82,7 @@ function RegisterScreen(props) {
                             <Text style={styles.formText}> Nombre de Usuario </Text>
                             <TextInput
                                 style={styles.input}
-                                placeholder='e.g. Alejandro Haaz'
+                                placeholder="e.g. Alejandro Haaz"
                                 value={username}
                                 onChangeText={setUsername}
                                 autoCapitalize="none"
@@ -53,7 +91,7 @@ function RegisterScreen(props) {
                             <Text style={styles.formText}> Correo Electrónico </Text>
                             <TextInput
                                 style={styles.input}
-                                placeholder='e.g. alejandro22@gmail.com'
+                                placeholder="e.g. alejandro22@gmail.com"
                                 value={email}
                                 onChangeText={setEmail}
                                 keyboardType="email-address"
@@ -63,7 +101,7 @@ function RegisterScreen(props) {
                             <Text style={styles.formText}> Contraseña </Text>
                             <TextInput
                                 style={styles.input}
-                                placeholder='*******'
+                                placeholder="*******"
                                 value={password}
                                 onChangeText={setPassword}
                                 secureTextEntry
@@ -84,6 +122,7 @@ function RegisterScreen(props) {
                                 text="Continuar"
                                 color="primary"
                                 onPress={handleRegister}
+                                disabled={loading} // Desactiva el botón mientras se registra
                             />
                         </View>
                     </SafeAreaView>
@@ -97,12 +136,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingVertical: 30,
-        backgroundColor: colors.white
+        backgroundColor: colors.white,
     },
     scrollContainer: {
         flexGrow: 1,
         justifyContent: 'flex-start',
-        //paddingHorizontal: 20,
     },
     buttonContainer: {
         paddingLeft: 20,
@@ -154,7 +192,17 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         paddingHorizontal: 20,
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.white,
+    },
+    loadingText: {
+        marginTop: 20,
+        fontSize: 18,
+        color: colors.primary,
+    },
 });
 
 export default RegisterScreen;
-
